@@ -1,0 +1,63 @@
+name: Draft Release
+on:
+  push:
+    branches: [master]
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npm run build
+      - run: zip -j zeroq-qol-modules.zip main.js manifest.json styles.css
+      - name: Create or update draft release
+        env:
+          GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
+        run: |
+          set -e
+          API="${GITHUB_SERVER_URL}/api/v1/repos/${GITHUB_REPOSITORY}"
+          TAG="latest-build"
+          SHA="${GITHUB_SHA}"
+
+          EXISTING=$(curl -s -H "Authorization: token ${GITEA_TOKEN}" \
+            "${API}/releases" \
+            | jq '.[] | select(.tag_name == "'"${TAG}"'" and .draft == true) | .id')
+
+          if [ -z "$EXISTING" ]; then
+            echo "Creating new draft release..."
+            RESP=$(curl -s -X POST -H "Authorization: token ${GITEA_TOKEN}" \
+              -H "Content-Type: application/json" \
+              -d '{
+                "tag_name": "'"${TAG}"'",
+                "name": "Latest Build from master",
+                "body": "Автоматическая сборка из ветки `master`.\n\nКоммит: '"${SHA}"'",
+                "draft": true,
+                "prerelease": true
+              }' "${API}/releases")
+            RELEASE_ID=$(echo "$RESP" | jq -r '.id')
+          else
+            echo "Updating existing draft release (id: ${EXISTING})..."
+            RELEASE_ID=$EXISTING
+
+            curl -s -X PATCH -H "Authorization: token ${GITEA_TOKEN}" \
+              -H "Content-Type: application/json" \
+              -d '{
+                "body": "Автоматическая сборка из ветки `master`.\n\nКоммит: '"${SHA}"'"
+              }' "${API}/releases/${RELEASE_ID}"
+
+            ASSETS=$(curl -s -H "Authorization: token ${GITEA_TOKEN}" \
+              "${API}/releases/${RELEASE_ID}/assets" | jq -r '.[].id')
+            for AID in $ASSETS; do
+              curl -s -X DELETE -H "Authorization: token ${GITEA_TOKEN}" \
+                "${API}/releases/${RELEASE_ID}/assets/${AID}"
+            done
+          fi
+
+          echo "Uploading artifact..."
+          curl -s -X POST -H "Authorization: token ${GITEA_TOKEN}" \
+            -F "attachment=@zeroq-qol-modules.zip" \
+            "${API}/releases/${RELEASE_ID}/assets"
+          echo "Done."
