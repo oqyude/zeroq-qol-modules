@@ -2,6 +2,7 @@ import { App, PluginSettingTab, Setting } from 'obsidian';
 import type ZeroQoLModulesPlugin from './main';
 import { MODULES } from './modules';
 import { ZeroQSettings } from './types';
+import { locale } from './locales';
 
 const MODULE_DEFAULTS = MODULES.reduce(
 	(acc, mod) => {
@@ -37,9 +38,9 @@ export class ZeroQSettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 
-		containerEl.createEl('h1', { text: 'ZeroQ QoL Modules' });
+		containerEl.createEl('h1', { text: locale.settings.title });
 		containerEl.createEl('p', {
-			text: 'Включайте и отключайте модули по своему усмотрению.',
+			text: locale.settings.description,
 			attr: { style: 'color: var(--text-muted); margin-bottom: 20px;' },
 		});
 

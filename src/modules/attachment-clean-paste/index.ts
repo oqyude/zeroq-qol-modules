@@ -10,6 +10,7 @@ import {
 } from 'obsidian';
 import type ZeroQoLModulesPlugin from '../../main';
 import { BaseModule } from '../base-module';
+import { locale } from '../../locales';
 
 const MODULE_ID = 'attachment-clean-paste';
 
@@ -19,9 +20,8 @@ interface AttachmentCleanPasteSettings {
 
 export class AttachmentCleanPasteModule extends BaseModule {
 	id = MODULE_ID;
-	name = 'Attachment Clean Paste';
-	description =
-		'Заменяет ![[вложение]] на [[вложение|имя]] для указанных расширений при вставке/перетаскивании';
+	name = locale.modules['attachment-clean-paste'].name;
+	description = locale.modules['attachment-clean-paste'].description;
 
 	private app: App;
 
@@ -170,9 +170,11 @@ class AttachmentCleanPasteSettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 
-		containerEl.createEl('h2', { text: 'Attachment Clean Paste' });
+		const loc = locale.modules['attachment-clean-paste'];
+
+		containerEl.createEl('h2', { text: loc.name });
 		containerEl.createEl('p', {
-			text: 'Заменяет ![[вложение]] на [[вложение|имя]] для указанных расширений.',
+			text: loc.descriptionShort,
 			attr: { style: 'color: var(--text-muted); margin-bottom: 20px;' },
 		});
 
@@ -181,13 +183,11 @@ class AttachmentCleanPasteSettingTab extends PluginSettingTab {
 			| undefined;
 
 		new Setting(containerEl)
-			.setName('Расширения файлов')
-			.setDesc(
-				'Расширения через запятую (например: png, jpg, pdf, mp3). Файлы с этими расширениями будут вставляться как [[path/file|name]] вместо ![[path/file]].',
-			)
+			.setName(loc.extensionsLabel)
+			.setDesc(loc.extensionsDesc)
 			.addTextArea((textarea) => {
 				textarea
-					.setPlaceholder('png, jpg, jpeg, gif, svg, webp, pdf')
+					.setPlaceholder(loc.extensionsPlaceholder)
 					.setValue(rawSettings?.extensions ?? '')
 					.onChange(async (value) => {
 						if (this.plugin.settings.modules[this.moduleId]) {
