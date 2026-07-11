@@ -4,7 +4,7 @@ import { ru } from './ru';
 const locales: Record<string, Locale> = { en, ru };
 
 function detectLocale(): Locale {
-	const lang = (navigator.language || 'en').slice(0, 2);
+	const lang = (document.documentElement.lang || 'en').slice(0, 2);
 	return locales[lang] || en;
 }
 
