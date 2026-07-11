@@ -6,7 +6,8 @@ Obsidian plugin with a **modular architecture**. Each feature is a separate modu
 
 **Plugin ID:** `zeroq-qol-modules`  
 **Entry point:** `src/main.ts` → compiles to `main.js` (esbuild)  
-**Version source:** `package.json` → auto-synced to `manifest.json` on build
+**Version source:** `package.json` → auto-synced to `manifest.json` on build  
+**Current modules (2):** `attachment-clean-paste`, `preserve-link-aliases`
 
 ## Stack
 
@@ -29,8 +30,10 @@ src/
 └── modules/
     ├── index.ts                     # Static registry: array of all module instances
     ├── base-module.ts               # BaseModule abstract class
-    └── attachment-clean-paste/
-        └── index.ts                 # Concrete module implementation
+    ├── attachment-clean-paste/
+    │   └── index.ts                 # Handles paste/drop — replaces ![[embed]] → [[path|name]]
+    └── preserve-link-aliases/
+        └── index.ts                 # Preserves aliases on vault rename events
 ```
 
 ## Architecture
