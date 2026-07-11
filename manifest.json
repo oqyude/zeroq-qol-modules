@@ -1,9 +1,9 @@
 {
 	"id": "zeroq-qol-modules",
 	"name": "ZeroQ QoL Modules",
-	"version": "1.0.0",
+	"version": "1.0.3",
 	"minAppVersion": "0.15.0",
-	"description": "Набор QoL-модулей для Obsidian: clean paste, авто-линковка и другое",
-	"author": "Custom",
+	"description": "QoL Modules",
+	"author": "oqyude",
 	"isDesktopOnly": false
 }
