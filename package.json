@@ -1,13 +1,17 @@
 {
 	"name": "zeroq-qol-modules",
-	"version": "1.1.1",
+	"version": "1.1.3",
 	"description": "Modular Obsidian plugin with toggleable QoL modules",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
-		"build": "node esbuild.config.mjs production"
+		"build": "node esbuild.config.mjs production",
+		"release": "bash scripts/release.sh"
 	},
-	"keywords": ["obsidian", "plugin"],
+	"keywords": [
+		"obsidian",
+		"plugin"
+	],
 	"author": "",
 	"license": "MIT",
 	"devDependencies": {
