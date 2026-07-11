@@ -71,6 +71,26 @@ export class AttachmentCleanPasteModule extends BaseModule {
 			});
 	}
 
+	private async processAll(
+		files: FileList,
+		editor: Editor,
+		settings: AttachmentCleanPasteSettings,
+	): Promise<void> {
+		const matchingFiles = Array.from(files).filter((f) =>
+			this.shouldProcess(f.name, settings),
+		);
+		if (matchingFiles.length === 0) return;
+
+		const links: string[] = [];
+		for (const file of matchingFiles) {
+			const link = await this.processFile(file, settings);
+			if (link) links.push(link);
+		}
+		if (links.length === 0) return;
+
+		editor.replaceSelection(links.join('\n\n'));
+	}
+
 	private createPasteHandler(settings: AttachmentCleanPasteSettings) {
 		return async (
 			evt: ClipboardEvent,
@@ -80,17 +100,10 @@ export class AttachmentCleanPasteModule extends BaseModule {
 			const files = evt.clipboardData?.files;
 			if (!files || files.length === 0) return;
 
-			const matchingFiles = Array.from(files).filter((f) =>
-				this.shouldProcess(f.name, settings),
-			);
-			if (matchingFiles.length === 0) return;
-
 			evt.preventDefault();
 			evt.stopPropagation();
 
-			for (const file of matchingFiles) {
-				await this.processFile(file, editor, settings);
-			}
+			await this.processAll(files, editor, settings);
 		};
 	}
 
@@ -103,17 +116,10 @@ export class AttachmentCleanPasteModule extends BaseModule {
 			const files = evt.dataTransfer?.files;
 			if (!files || files.length === 0) return;
 
-			const matchingFiles = Array.from(files).filter((f) =>
-				this.shouldProcess(f.name, settings),
-			);
-			if (matchingFiles.length === 0) return;
-
 			evt.preventDefault();
 			evt.stopPropagation();
 
-			for (const file of matchingFiles) {
-				await this.processFile(file, editor, settings);
-			}
+			await this.processAll(files, editor, settings);
 		};
 	}
 
@@ -138,9 +144,8 @@ export class AttachmentCleanPasteModule extends BaseModule {
 
 	private async processFile(
 		file: File,
-		editor: Editor,
 		_settings: AttachmentCleanPasteSettings,
-	): Promise<void> {
+	): Promise<string | null> {
 		try {
 			const arrayBuffer = await file.arrayBuffer();
 			const filename = file.name;
@@ -166,11 +171,11 @@ export class AttachmentCleanPasteModule extends BaseModule {
 
 			await this.app.vault.createBinary(availablePath, arrayBuffer);
 
-			const link = `[[${availablePath}|${nameWithoutExt}]]`;
-			editor.replaceSelection(link);
+			return `[[${availablePath}|${nameWithoutExt}]]`;
 		} catch (e) {
 			new Notice(`Clean Paste error: ${e.message}`);
 			console.error('Attachment Clean Paste:', e);
 		}
+		return null;
 	}
 }
