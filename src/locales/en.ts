@@ -12,6 +12,14 @@ export interface Locale {
 			extensionsDesc: string;
 			extensionsPlaceholder: string;
 		};
+		'preserve-link-aliases': {
+			name: string;
+			description: string;
+			processEmbedsLabel: string;
+			processEmbedsDesc: string;
+			processCanvasLabel: string;
+			processCanvasDesc: string;
+		};
 	};
 }
 
@@ -31,6 +39,15 @@ export const en: Locale = {
 			extensionsDesc:
 				'Comma-separated extensions (e.g.: png, jpg, pdf, mp3). Files with these extensions will be inserted as [[path/file|name]] instead of ![[path/file]].',
 			extensionsPlaceholder: 'png, jpg, jpeg, gif, svg, webp, pdf',
+		},
+		'preserve-link-aliases': {
+			name: 'Preserve Link Aliases',
+			description:
+				'Preserves original link aliases when attachments are renamed',
+			processEmbedsLabel: 'Process embed links',
+			processEmbedsDesc: 'Also process ![[embed]] links (disabled by default)',
+			processCanvasLabel: 'Process Canvas files',
+			processCanvasDesc: 'Also process links in Canvas (.canvas) files',
 		},
 	},
 };
