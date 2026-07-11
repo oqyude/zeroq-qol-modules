@@ -45,14 +45,14 @@ export class ZeroQSettingTab extends PluginSettingTab {
 		});
 
 		for (const module of MODULES) {
-			const moduleSettings = this.plugin.settings.modules[module.id];
+			const moduleCfg = this.plugin.settings.modules[module.id];
 
 			new Setting(containerEl)
 				.setName(module.name)
 				.setDesc(module.description)
 				.addToggle((toggle) =>
 					toggle
-						.setValue(moduleSettings?.enabled ?? true)
+						.setValue(moduleCfg?.enabled ?? true)
 						.onChange(async (value) => {
 							if (!this.plugin.settings.modules[module.id]) {
 								this.plugin.settings.modules[module.id] = {
@@ -70,6 +70,14 @@ export class ZeroQSettingTab extends PluginSettingTab {
 							}
 						}),
 				);
+
+			if (moduleCfg) {
+				module.renderInlineSettings(
+					containerEl,
+					moduleCfg.settings,
+					() => this.plugin.saveSettings(),
+				);
+			}
 		}
 	}
 }

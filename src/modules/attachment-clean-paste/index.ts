@@ -4,7 +4,6 @@ import {
 	MarkdownFileInfo,
 	MarkdownView,
 	Notice,
-	PluginSettingTab,
 	Setting,
 	normalizePath,
 } from 'obsidian';
@@ -33,23 +32,43 @@ export class AttachmentCleanPasteModule extends BaseModule {
 
 	onload(plugin: ZeroQoLModulesPlugin, moduleSettings: Record<string, unknown>): void {
 		this.app = plugin.app;
-		const settings = moduleSettings as unknown as AttachmentCleanPasteSettings;
-
-		plugin.addSettingTab(
-			new AttachmentCleanPasteSettingTab(plugin.app, plugin, MODULE_ID),
-		);
+		const rawSettings = moduleSettings as AttachmentCleanPasteSettings;
 
 		const pasteRef = plugin.app.workspace.on(
 			'editor-paste',
-			this.createPasteHandler(settings),
+			this.createPasteHandler(rawSettings),
 		);
 		this.registerCleanup(() => plugin.app.workspace.offref(pasteRef));
 
 		const dropRef = plugin.app.workspace.on(
 			'editor-drop',
-			this.createDropHandler(settings),
+			this.createDropHandler(rawSettings),
 		);
 		this.registerCleanup(() => plugin.app.workspace.offref(dropRef));
+	}
+
+	renderInlineSettings(
+		containerEl: HTMLElement,
+		settings: Record<string, unknown>,
+		saveSettings: () => Promise<void>,
+	): void {
+		const loc = locale.modules['attachment-clean-paste'];
+		const extSettings = settings as unknown as AttachmentCleanPasteSettings;
+
+		new Setting(containerEl)
+			.setName(loc.extensionsLabel)
+			.setDesc(loc.extensionsDesc)
+			.addTextArea((textarea) => {
+				textarea
+					.setPlaceholder(loc.extensionsPlaceholder)
+					.setValue(extSettings?.extensions ?? '')
+					.onChange(async (value) => {
+						settings.extensions = value;
+						await saveSettings();
+					});
+				textarea.inputEl.rows = 4;
+				textarea.inputEl.style.width = '100%';
+			});
 	}
 
 	private createPasteHandler(settings: AttachmentCleanPasteSettings) {
@@ -153,52 +172,5 @@ export class AttachmentCleanPasteModule extends BaseModule {
 			new Notice(`Clean Paste error: ${e.message}`);
 			console.error('Attachment Clean Paste:', e);
 		}
-	}
-}
-
-class AttachmentCleanPasteSettingTab extends PluginSettingTab {
-	private plugin: ZeroQoLModulesPlugin;
-	private moduleId: string;
-
-	constructor(app: App, plugin: ZeroQoLModulesPlugin, moduleId: string) {
-		super(app, plugin);
-		this.plugin = plugin;
-		this.moduleId = moduleId;
-	}
-
-	display(): void {
-		const { containerEl } = this;
-		containerEl.empty();
-
-		const loc = locale.modules['attachment-clean-paste'];
-
-		containerEl.createEl('h2', { text: loc.name });
-		containerEl.createEl('p', {
-			text: loc.descriptionShort,
-			attr: { style: 'color: var(--text-muted); margin-bottom: 20px;' },
-		});
-
-		const rawSettings = this.plugin.settings.modules[this.moduleId]?.settings as
-			| AttachmentCleanPasteSettings
-			| undefined;
-
-		new Setting(containerEl)
-			.setName(loc.extensionsLabel)
-			.setDesc(loc.extensionsDesc)
-			.addTextArea((textarea) => {
-				textarea
-					.setPlaceholder(loc.extensionsPlaceholder)
-					.setValue(rawSettings?.extensions ?? '')
-					.onChange(async (value) => {
-						if (this.plugin.settings.modules[this.moduleId]) {
-							this.plugin.settings.modules[this.moduleId].settings = {
-								extensions: value,
-							};
-						}
-						await this.plugin.saveSettings();
-					});
-				textarea.inputEl.rows = 4;
-				textarea.inputEl.style.width = '100%';
-			});
 	}
 }

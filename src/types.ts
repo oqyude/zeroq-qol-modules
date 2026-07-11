@@ -16,4 +16,9 @@ export interface QoLModule {
 	defaultSettings: Record<string, unknown>;
 	onload(plugin: Plugin, moduleSettings: Record<string, unknown>): void;
 	onunload(plugin: Plugin): void;
+	renderInlineSettings(
+		containerEl: HTMLElement,
+		settings: Record<string, unknown>,
+		saveSettings: () => Promise<void>,
+	): void;
 }

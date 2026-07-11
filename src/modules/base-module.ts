@@ -21,6 +21,12 @@ export abstract class BaseModule implements QoLModule {
 		this.cleanupFns = [];
 	}
 
+	renderInlineSettings(
+		_containerEl: HTMLElement,
+		_settings: Record<string, unknown>,
+		_saveSettings: () => Promise<void>,
+	): void {}
+
 	protected registerCleanup(fn: () => void): void {
 		this.cleanupFns.push(fn);
 	}
