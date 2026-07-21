@@ -1,0 +1,106 @@
+{
+  "$schema": "metaagent-task-manifest",
+  "version": "1.0",
+  "session_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "goal": "Проанализировать существующий Obsidian-плагин zeroq-qol-modules (v1.1.4) и подготовить манифест задач для исполнительного агента.",
+  "created_at": "2026-07-22T00:00:00.000Z",
+  "tasks": [
+    {
+      "id": "T1",
+      "title": "Настроить ESLint и Prettier",
+      "description": "Добавить конфигурацию ESLint (typescript-eslint) и Prettier для единого стиля кода. Настроить скрипты lint/format в package.json.",
+      "type": "config",
+      "files": [
+        "package.json",
+        ".eslintrc.json",
+        ".prettierrc.json"
+      ],
+      "depends_on": [],
+      "acceptance_criteria": [
+        "ESLint настроен с typescript-eslint, проходит без ошибок на src/",
+        "Prettier настроен с tabs, проходит без ошибок на src/",
+        "Скрипты lint и format добавлены в package.json"
+      ],
+      "context": "В проекте используются tabs для отступов (см. review.md). Линтер/форматтер отсутствует.",
+      "status": "pending"
+    },
+    {
+      "id": "T2",
+      "title": "Написать тесты для BaseModule",
+      "description": "Добавить unit-тесты для BaseModule: проверка registerCleanup, onunload (очистка всех функций), defaultSettings.",
+      "type": "test",
+      "files": [
+        "src/modules/base-module.ts",
+        "tests/modules/base-module.test.ts",
+        "package.json",
+        "tsconfig.json"
+      ],
+      "depends_on": [],
+      "acceptance_criteria": [
+        "Тест проверяет, что registerCleanup добавляет функцию в очередь",
+        "Тест проверяет, что onunload вызывает все зарегистрированные cleanup-функции",
+        "Тест проверяет, что onunload очищает очередь после выполнения",
+        "Тест проверяет, что defaultSettings возвращает пустой объект",
+        "Все тесты проходят (npm test)"
+      ],
+      "context": "BaseModule — абстрактный класс-основа для всех модулей. Находится в src/modules/base-module.ts. Для тестов нужно настроить тестовый раннер (jest или vitest) и mock-объект Plugin из obsidian.",
+      "status": "pending"
+    },
+    {
+      "id": "T3",
+      "title": "Написать тесты для Attachment Clean Paste модуля",
+      "description": "Добавить unit-тесты для AttachmentCleanPasteModule: проверка shouldProcess (фильтрация расширений), обработка paste/drop событий.",
+      "type": "test",
+      "files": [
+        "src/modules/attachment-clean-paste/index.ts",
+        "tests/modules/attachment-clean-paste.test.ts"
+      ],
+      "depends_on": ["T2"],
+      "acceptance_criteria": [
+        "Тест проверяет shouldProcess с разными расширениями и настройками",
+        "Тест проверяет, что обработчик paste вызывает preventDefault для файлов с подходящими расширениями",
+        "Тест проверяет, что модуль корректно создаёт ссылку [[path|name]]",
+        "Все тесты проходят (npm test)"
+      ],
+      "context": "Attachment Clean Paste обрабатывает editor-paste и editor-drop события. Основная логика: shouldProcess (фильтрация по extensions) и processFile (копирование + создание ссылки).",
+      "status": "pending"
+    },
+    {
+      "id": "T4",
+      "title": "Написать тесты для Preserve Link Aliases модуля",
+      "description": "Добавить unit-тесты для PreserveLinkAliasesModule: проверка processContent (замена алиасов), getFilesToProcess (фильтрация файлов), обработка rename.",
+      "type": "test",
+      "files": [
+        "src/modules/preserve-link-aliases/index.ts",
+        "tests/modules/preserve-link-aliases.test.ts"
+      ],
+      "depends_on": ["T2"],
+      "acceptance_criteria": [
+        "Тест проверяет processContent: замена алиаса при переименовании",
+        "Тест проверяет processContent: игнорирование ссылок без алиаса",
+        "Тест проверяет processContent: учёт флага processEmbeds",
+        "Тест проверяет getFilesToProcess: включение canvas-файлов при processCanvas=true",
+        "Все тесты проходят (npm test)"
+      ],
+      "context": "Preserve Link Aliases обрабатывает vault rename. Основная логика: processContent (регулярное выражение для вики-ссылок) и getFilesToProcess (сбор markdown + опционально canvas).",
+      "status": "pending"
+    },
+    {
+      "id": "T5",
+      "title": "Добавить CI workflow для тестов и линтинга",
+      "description": "Добавить GitHub Actions workflow для автоматического запуска тестов и ESLint на push/PR в main/dev.",
+      "type": "config",
+      "files": [
+        ".github/workflows/ci.yml"
+      ],
+      "depends_on": ["T1", "T3", "T4"],
+      "acceptance_criteria": [
+        "Workflow запускается на push и pull_request в main и dev",
+        "Workflow выполняет npm ci, npm run lint, npm test",
+        "Workflow завершается с ошибкой при падении тестов или линтера"
+      ],
+      "context": "Существующий release.yml в .github/workflows/ — можно использовать как шаблон. Node 20, ubuntu-latest.",
+      "status": "pending"
+    }
+  ]
+}

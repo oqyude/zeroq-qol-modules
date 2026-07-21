@@ -1,0 +1,39 @@
+{
+  "metaagent_version": "1.1.0",
+  "session_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "target_repo": "S:\\Git\\zeroq-qol-modules",
+  "goal": "Проанализировать существующий Obsidian-плагин zeroq-qol-modules (v1.1.4) и подготовить манифест задач для исполнительного агента.",
+  "project_type": "existing",
+  "config": {
+    "depth": 4,
+    "design": {
+      "adr": false,
+      "alternative_arch": false
+    },
+    "red_team": false,
+    "risk_register": false,
+    "decomposition": {
+      "invariant_tests": false
+    },
+    "handoff": {
+      "layer_structure": false
+    }
+  },
+  "phases": {
+    "analysis": "completed",
+    "design": "skipped",
+    "red_team": "skipped",
+    "decomposition": "completed",
+    "environment": "completed",
+    "handoff": "completed"
+  },
+  "tasks": [
+    { "id": "T1", "title": "Настроить ESLint и Prettier", "type": "config", "status": "pending", "depends_on": [] },
+    { "id": "T2", "title": "Написать тесты для BaseModule", "type": "test", "status": "pending", "depends_on": [] },
+    { "id": "T3", "title": "Написать тесты для Attachment Clean Paste модуля", "type": "test", "status": "pending", "depends_on": ["T2"] },
+    { "id": "T4", "title": "Написать тесты для Preserve Link Aliases модуля", "type": "test", "status": "pending", "depends_on": ["T2"] },
+    { "id": "T5", "title": "Добавить CI workflow для тестов и линтинга", "type": "config", "status": "pending", "depends_on": ["T1", "T3", "T4"] }
+  ],
+  "last_updated": "2026-07-22T00:00:00.000Z",
+  "handoff_completed": true
+}
